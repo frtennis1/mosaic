@@ -4,7 +4,7 @@ import { OPTIONS } from '../constants.js';
 export function parseOptions(spec, ctx) {
   const options = {};
   for (const key in spec) {
-    options[key] = ctx.maybeSelection(spec[key]);
+    options[key] = ctx.maybeSelections(spec[key]);
   }
   return new OptionsNode(options);
 }

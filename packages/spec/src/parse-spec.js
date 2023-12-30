@@ -5,6 +5,7 @@ import { ParamRefNode } from './ast/ParamRefNode.js';
 import { parseAttribute } from './ast/PlotAttributeNode.js';
 import { SelectionNode } from './ast/SelectionNode.js';
 import { SpecNode } from './ast/SpecNode.js';
+import { ListNode } from './ast/ListNode.js';
 
 import { componentMap } from './config/components.js';
 import { inputNames } from './config/inputs.js';
@@ -103,6 +104,13 @@ export class ParseContext {
 
   maybeSelection(value) {
     return this.maybeParam(value, () => new SelectionNode);
+  }
+
+  maybeSelections(value) {
+    if (Array.isArray(value)) {
+      return new ListNode(value.map(v => this.maybeSelection(v)));
+    }
+    return this.maybeSelection(value);
   }
 
   error(message, data) {
