@@ -11,7 +11,11 @@ export class Nearest {
     maxRadius = 40
   }) {
     this.mark = mark;
-    this.selection = selection;
+    if (Array.isArray(selection)) {
+      this.selections = selection;
+    } else {
+      this.selections = [selection];
+    }
     this.clients = new Set().add(mark);
     this.pointer = pointer;
     this.channels = channels || (
@@ -29,10 +33,9 @@ export class Nearest {
 
   init(svg) {
     const that = this;
-    const { mark, channels, selection, maxRadius } = this;
+    const { mark, channels, selections, maxRadius } = this;
     const { data: { columns } } = mark;
     const keys = channels.map(c => mark.channelField(c).as);
-    const param = !isSelection(selection);
 
     const facets = select(svg).selectAll('g[aria-label="facet"]');
     const root = facets.size() ? facets : select(svg);
@@ -53,28 +56,34 @@ export class Nearest {
       if (i !== this.valueIndex) {
         this.valueIndex = i;
         const v = i < 0 ? undefined : keys.map(k => columns[k][i]);
-        if (param) {
-          if (i > -1) selection.update(v.length > 1 ? v : v[0]);
-        } else {
-          selection.update(that.clause(v));
+        selections.forEach(selection => {
+          const param = !isSelection(selection);
+          if (param) {
+            if (i > -1) selection.update(v.length > 1 ? v : v[0]);
+          } else {
+            selection.update(that.clause(v));
+          }
+        });
+      }
+    });
+
+
+    selections.forEach(selection => {
+      if (!isSelection(selection)) return;
+
+      // clear selection upon pointer exit
+      root.on('pointerleave', () => {
+	if (!isSelection(selection)) return;
+	selection.update(that.clause(undefined));
+      });
+
+      // trigger activation updates
+      svg.addEventListener('pointerenter', evt => {
+        if (!evt.buttons) {
+          const v = this.channels.map(() => 0);
+          selection.activate(this.clause(v));
         }
-      }
-    });
-
-    // if not a selection, we're done
-    if (param) return;
-
-    // clear selection upon pointer exit
-    root.on('pointerleave', () => {
-      selection.update(that.clause(undefined));
-    });
-
-    // trigger activation updates
-    svg.addEventListener('pointerenter', evt => {
-      if (!evt.buttons) {
-        const v = this.channels.map(() => 0);
-        selection.activate(this.clause(v));
-      }
+      })
     });
   }
 }
