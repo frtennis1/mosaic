@@ -4,6 +4,9 @@ export const SPEC = 'spec';
 // literal values
 export const LITERAL = 'literal';
 
+// a list of sub-nodes
+export const LIST = 'list';
+
 // dataset identifier
 export const DATAREF = 'dataref';
 
