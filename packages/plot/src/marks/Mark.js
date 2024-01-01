@@ -143,7 +143,7 @@ export class Mark extends MosaicClient {
   query(filter = []) {
     if (this.hasOwnData()) return null;
     const { channels, source: { table } } = this;
-    return markQuery(channels, table).where(filter);
+    return markQuery(channels, table, filter);
   }
 
   queryPending() {
@@ -198,8 +198,9 @@ export function channelOption(c) {
  *  Mark subclasses can skip channels that require special handling.
  * @returns a Query instance
  */
-export function markQuery(channels, table, skip = []) {
-  const q = Query.from({ source: table });
+export function markQuery(channels, table, filter, skip = []) {
+  const q_with = Query.from({ source: table }).select('*');
+  const q = Query.from('__mosaicTemp');
   const dims = new Set;
   let aggr = false;
 
@@ -212,14 +213,16 @@ export function markQuery(channels, table, skip = []) {
     } else if (field) {
       if (field.aggregate) {
         aggr = true;
+        q.select({ [as]: field });
       } else {
         if (dims.has(as)) continue;
         dims.add(as);
+	q_with.select({ [as]: field });
+        q.select({ [as]: as });
       }
-      q.select({ [as]: field });
     }
   }
-
+  q.with({__mosaicTemp: q_with.where(filter)});
   if (aggr) {
     q.groupby(Array.from(dims));
   }
