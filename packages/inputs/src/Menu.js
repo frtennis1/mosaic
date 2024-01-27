@@ -51,9 +51,9 @@ export class Menu extends MosaicClient {
     super(filterBy);
     this.from = from;
     this.column = column;
+    this.selections = (as === undefined) ? [] : Array.isArray(as) ? as : [as];
     this.format = format;
     this.field = field;
-    const selection = this.selection = as;
 
     this.element = element ?? document.createElement('div');
     this.element.setAttribute('class', 'input');
@@ -73,8 +73,13 @@ export class Menu extends MosaicClient {
       this.update();
     }
 
+    // publish selected value upon menu change
+    this.select.addEventListener('input', () => {
+      this.publish(this.selectedValue() ?? null);
+    });
+
     // initialize selection or param bindings
-    if (selection) {
+    this.selections.forEach(selection => {
       const isParam = !isSelection(selection);
 
       // publish any initial menu value to the selection/param
@@ -84,11 +89,6 @@ export class Menu extends MosaicClient {
         this.publish(value);
       }
 
-      // publish selected value upon menu change
-      this.select.addEventListener('input', () => {
-        this.publish(this.selectedValue() ?? null);
-      });
-
       // if bound to a scalar param, respond to value updates
       if (isParam) {
         this.selection.addEventListener('value', value => {
@@ -97,7 +97,7 @@ export class Menu extends MosaicClient {
           }
         });
       }
-    }
+    });
   }
 
   selectedValue(value) {
@@ -119,14 +119,16 @@ export class Menu extends MosaicClient {
   }
 
   publish(value) {
-    const { selection, field } = this;
-    if (isSelection(selection)) {
-      if (value === '') value = undefined; // 'All' option
-      const clause = point(field, value, { source: this });
-      selection.update(clause);
-    } else if (isParam(selection)) {
-      selection.update(value);
-    }
+    const { selections, field } = this;
+    selections.forEach(selection => {
+      if (isSelection(selection)) {
+	if (value === '') value = undefined; // 'All' option
+	const clause = point(field, value, { source: this });
+	selection.update(clause);
+      } else if (isParam(selection)) {
+	selection.update(value);
+      }
+    });
   }
 
   query(filter = []) {
@@ -147,7 +149,7 @@ export class Menu extends MosaicClient {
   }
 
   update() {
-    const { data, format, select, selection } = this;
+    const { data, format, select, selections } = this;
 
     // generate menu item options
     select.replaceChildren();
@@ -159,12 +161,12 @@ export class Menu extends MosaicClient {
     }
 
     // update menu value based on param/selection
-    if (selection) {
+    selections.forEach(selection => {
       const value = isSelection(selection)
         ? selection.valueFor(this)
         : selection.value;
       this.selectedValue(value ?? '');
-    }
+    });
 
     return this;
   }
