@@ -295,6 +295,7 @@ export {
 export {
   area, areaX, areaY,
   line, lineX, lineY,
+  cumLineY,
   barX, barY,
   cell, cellX, cellY,
   rect, rectX, rectY,

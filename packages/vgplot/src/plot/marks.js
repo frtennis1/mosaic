@@ -1,5 +1,6 @@
 import {
   Mark,
+  CumConnectedMark,
   ConnectedMark,
   ContourMark,
   Density1DMark,
@@ -27,8 +28,11 @@ function mark(type, data, channels = {}) {
     data = decorators.has(type) ? null : [{}];
   }
   const MarkClass = type.startsWith('area') || type.startsWith('line')
-    ? ConnectedMark
+    ? ConnectedMark : type.startsWith('cum') ? CumConnectedMark 
     : Mark;
+
+  type = type.startsWith('cum') ? type.charAt(3).toLowerCase() + type.slice(4) : type;
+  console.log(type);
 
   return explicitType(MarkClass, type, data, channels);
 }
@@ -52,6 +56,7 @@ export const areaY = (...args) => mark('areaY', ...args);
 export const line = (...args) => mark('line', ...args);
 export const lineX = (...args) => mark('lineX', ...args);
 export const lineY = (...args) => mark('lineY', ...args);
+export const cumLineY = (...args) => mark('cumLineY', ...args);
 
 export const barX = (...args) => mark('barX', ...args);
 export const barY = (...args) => mark('barY', ...args);
