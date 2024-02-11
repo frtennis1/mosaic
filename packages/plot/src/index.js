@@ -3,7 +3,7 @@ export { Plot } from './plot.js';
 
 // marks
 export { Mark } from './marks/Mark.js';
-export { ConnectedMark } from './marks/ConnectedMark.js';
+export { ConnectedMark, CumConnectedMark } from './marks/ConnectedMark.js';
 export { ContourMark } from './marks/ContourMark.js';
 export { DenseLineMark } from './marks/DenseLineMark.js';
 export { Density1DMark } from './marks/Density1DMark.js';
