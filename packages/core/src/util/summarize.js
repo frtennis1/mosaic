@@ -1,10 +1,11 @@
-import { Query, count, isNull, max, min } from '@uwdata/mosaic-sql';
+import { Query, count, isNull, max, min, sum } from '@uwdata/mosaic-sql';
 
 export const Count = 'count';
 export const Nulls = 'nulls';
 export const Max = 'max';
 export const Min = 'min';
 export const Distinct = 'distinct';
+export const Sum = 'sum';
 
 export const Stats = { Count, Nulls, Max, Min, Distinct };
 
@@ -13,6 +14,7 @@ export const statMap = {
   [Distinct]: column => count(column).distinct(),
   [Max]: max,
   [Min]: min,
+  [Sum]: sum,
   [Nulls]: column => count().where(isNull(column))
 };
 
