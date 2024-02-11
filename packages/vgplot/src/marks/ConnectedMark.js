@@ -38,6 +38,55 @@ export class ConnectedMark extends Mark {
   }
 }
 
+/// Like a connected mark, but the x-value will be transformed to cumsum(x)
+/// while preserving M4 optimization.
+export class CumConnectedMark extends Mark {
+  constructor(type, source, encodings) {
+    const dim = type.endsWith('X') ? 'y' : 'x';
+    const column = encodings[dim];
+    encodings[dim] = sql`sum(${encodings[dim]}) over (order by ${encodings["order"]})`
+
+    super(type, source, encodings);
+    this.dim = dim;
+    this.column = column
+  }
+
+  fields() {
+    var fields = super.fields()
+    for (var {column, stats} of fields) {
+      if (column == this.column) {
+	stats.add("sum");
+	stats.add("count");
+	return fields;
+      }
+    }
+    fields.push({table: this.source.table, column: this.column, stats: ["count", "sum"]});
+    return fields;
+  }
+
+  query(filter = []) {
+    const { plot, dim, source, stats, column } = this;
+    const { optimize = true } = source.options || {};
+    const { as } = this.channelField(dim);
+    const q = super.query(filter);
+
+    if (optimize) {
+      const { count, sum } = stats[column];
+      const size = dim === 'x' ? plot.innerWidth() : plot.innerHeight();
+
+      const [lo, hi] = [0, sum];
+      if (count > size * 4) {
+        const dd = dim;
+        const val = this.channelField(dim === 'x' ? 'y' : 'x').as;
+        const cols = q.select().map(c => c.as).filter(c => c !== as && c !== val);
+        return m4(q, dd, as, val, lo, hi, size, cols);
+      }
+    }
+
+    return q.orderby(as);
+  }
+}
+
 /**
  * M4 is an optimization for value-preserving time-series aggregation
  * (http://www.vldb.org/pvldb/vol7/p797-jugel.pdf). This implementation uses
