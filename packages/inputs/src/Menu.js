@@ -6,6 +6,17 @@ const isObject = v => {
   return v && typeof v === 'object' && !Array.isArray(v);
 };
 
+const parseOption = value => {
+  if (!isObject(value)) {
+    return { value };
+  }
+  const { value: { sql }, ...options } = value;
+  if (sql === undefined) {
+    return value;
+  }
+  return {value: sqlFunc`${sql}`, ...options}
+}
+
 export const menu = options => input(Menu, options);
 
 export class Menu extends MosaicClient {
