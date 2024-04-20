@@ -18,7 +18,7 @@ export class Interval2D {
   }) {
     this.mark = mark;
     this.pixelSize = pixelSize || 1;
-    this.selection = selection;
+    this.selections = (selection === undefined) ? [] : Array.isArray(selection) ? selection: [selection];
     this.peers = peers;
     this.xfield = xfield || getField(mark, 'x');
     this.yfield = yfield || getField(mark, 'y');
@@ -33,7 +33,7 @@ export class Interval2D {
   }
 
   activate() {
-    this.selection.activate(this.clause(this.value || [[0, 1], [0, 1]]));
+    this.selections.forEach(s => {s.activate(this.clause(this.value || [[0, 1], [0, 1]]))});
   }
 
   publish(extent) {
@@ -49,7 +49,7 @@ export class Interval2D {
     if (!closeTo(xr, value?.[0]) || !closeTo(yr, value?.[1])) {
       this.value = extent ? [xr, yr] : undefined;
       this.g.call(this.brush.moveSilent, extent);
-      this.selection.update(this.clause(this.value));
+      this.selections.forEach(s => {s.update(this.clause(this.value))});
     }
   }
 
