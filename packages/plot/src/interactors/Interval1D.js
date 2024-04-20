@@ -19,7 +19,7 @@ export class Interval1D {
     this.mark = mark;
     this.channel = channel;
     this.pixelSize = pixelSize || 1;
-    this.selection = selection;
+    this.selections = (selection === undefined) ? [] : Array.isArray(selection) ? selection: [selection];
     this.peers = peers;
     this.field = field || getField(mark, channel);
     this.style = style && sanitizeStyles(style);
@@ -33,7 +33,7 @@ export class Interval1D {
   }
 
   activate() {
-    this.selection.activate(this.clause(this.value || [0, 1]));
+    this.selections.forEach(s => { s.activate(this.clause(this.value || [0, 1]))});
   }
 
   publish(extent) {
@@ -46,7 +46,7 @@ export class Interval1D {
     if (!closeTo(range, this.value)) {
       this.value = range;
       this.g.call(this.brush.moveSilent, extent);
-      this.selection.update(this.clause(range));
+      this.selections.forEach(s => {s.update(this.clause(range))});
     }
   }
 
