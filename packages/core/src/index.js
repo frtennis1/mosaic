@@ -4,6 +4,7 @@ export { Selection, isSelection } from './Selection.js';
 export { Param, isParam } from './Param.js';
 export { Priority } from './QueryManager.js';
 export { point, points, interval, intervals, match } from './SelectionClause.js';
+export { refresh } from './Refresher.js';
 
 export { restConnector } from './connectors/rest.js';
 export { socketConnector } from './connectors/socket.js';
