@@ -1,7 +1,8 @@
 export {
   Param,
   Selection,
-  coordinator
+  coordinator,
+  refresh
 } from '@uwdata/mosaic-core';
 
 export {
