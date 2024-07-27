@@ -1,4 +1,4 @@
-import { Query, asRelation, count, isNull, max, min, sql } from '@uwdata/mosaic-sql';
+import { Query, asRelation, count, isNull, max, min, sum, sql } from '@uwdata/mosaic-sql';
 import { jsType } from './js-type.js';
 
 export const Count = 'count';
@@ -6,14 +6,16 @@ export const Nulls = 'nulls';
 export const Max = 'max';
 export const Min = 'min';
 export const Distinct = 'distinct';
-export const Stats = { Count, Nulls, Max, Min, Distinct };
+export const Sum = 'sum';
+export const Stats = { Count, Nulls, Max, Min, Distinct, Sum };
 
 const statMap = {
   [Count]: count,
   [Distinct]: column => count(column).distinct(),
   [Max]: max,
   [Min]: min,
-  [Nulls]: column => count().where(isNull(column))
+  [Nulls]: column => count().where(isNull(column)),
+  [Sum]: sum
 };
 
 function summarize(table, column, stats) {
