@@ -8,6 +8,7 @@ export default defineConfig({
       entry: ["src/index.js"],
       formats: ["es"],
     },
+    minify: false,
   },
   plugin: [anywidget()],
 });
