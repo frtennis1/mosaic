@@ -52,37 +52,48 @@ export class CumConnectedMark extends Mark {
 
   fields() {
     var fields = super.fields()
+    let fieldsModified = false;
     for (var {column, stats} of fields) {
       if (column == this.column) {
-	stats.add("sum");
-	stats.add("count");
-	return fields;
+        stats.add("sum");
+        stats.add("count");
+        fieldsModified = true;
       }
     }
-    fields.push({table: this.source.table, column: this.column, stats: ["count", "sum"]});
+    if (!fieldsModified) {
+      fields.push({table: this.source.table, column: this.column, stats: ["count", "sum"]});
+    }
     return fields;
   }
 
+  fieldInfo(info) {
+    super.fieldInfo(info);
+    for (const item of info) {
+      if (item.column === this.column) {
+        this.column_sum = item.sum;
+        break;
+      }
+    }
+    return info;
+  }
+
   query(filter = []) {
-    const { plot, dim, source, stats, column } = this;
+    const { plot, dim, source, column_sum} = this;
     const { optimize = true } = source.options || {};
     const { as } = this.channelField(dim);
     const q = super.query(filter);
 
     if (optimize) {
-      const { count, sum } = stats[column];
       const size = dim === 'x' ? plot.innerWidth() : plot.innerHeight();
-
-      const [lo, hi] = [0, sum];
-      if (count > size * 4) {
-        const dd = dim;
-        const val = this.channelField(dim === 'x' ? 'y' : 'x').as;
-        const cols = q.select().map(c => c.as).filter(c => c !== as && c !== val);
-        return m4(q, dd, as, val, lo, hi, size, cols);
-      }
+      const [expr] = binExpr(this, dim, size, [0, column_sum], 1, as);
+      const val = this.channelField(dim === 'x' ? 'y' : 'x').as;
+      const cols = q.select()
+        .map(c => c.as)
+        .filter(c => c !== as && c !== val);
+      return m4(q, expr, as, val, cols);
+    } else {
+      return q.orderby(as);
     }
-
-    return q.orderby(as);
   }
 }
 
