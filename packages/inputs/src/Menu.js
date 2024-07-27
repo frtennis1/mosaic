@@ -1,5 +1,5 @@
 import { MosaicClient, Param, isParam, isSelection, clausePoint } from '@uwdata/mosaic-core';
-import { Query } from '@uwdata/mosaic-sql';
+import { Query, sql as sqlFunc } from '@uwdata/mosaic-sql';
 import { input } from './input.js';
 
 const isObject = v => {
@@ -79,7 +79,7 @@ export class Menu extends MosaicClient {
 
     // if provided, populate menu options
     if (options) {
-      this.data = options.map(value => isObject(value) ? value : { value });
+      this.data = options.map(value => parseOption(value));
       this.selectedValue(value ?? '');
       this.update();
     }
