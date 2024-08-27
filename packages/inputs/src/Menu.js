@@ -80,6 +80,11 @@ export class Menu extends MosaicClient {
     // if provided, populate menu options
     if (options) {
       this.data = options.map(value => parseOption(value));
+      if (value === undefined) {
+	// When no default is passed in and options are explicit, default to the
+	// first one.
+	value = this.data[0].value;
+      }
       this.selectedValue(value ?? '');
       this.update();
     }
