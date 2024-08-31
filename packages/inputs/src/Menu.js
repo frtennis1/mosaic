@@ -182,6 +182,6 @@ export class Menu extends MosaicClient {
       this.selectedValue(value ?? '');
     }
 
-    return this;
+    return Promise.resolve(this);
   }
 }
