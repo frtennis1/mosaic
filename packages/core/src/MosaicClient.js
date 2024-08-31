@@ -135,6 +135,6 @@ export class MosaicClient {
    * @returns {this | Promise<any>}
    */
   update() {
-    return this;
+    return Promise.resolve(this);
   }
 }
