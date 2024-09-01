@@ -1,10 +1,22 @@
 import { ASTNode } from './ASTNode.js';
 import { OPTIONS } from '../constants.js';
+import { isObject } from '../util.js';
+import { SQL, AGG} from '../constants.js';
+import { parseExpression } from './ExpressionNode.js';
+import { parseTransform } from './TransformNode.js';
+
+function maybeTransform(value, ctx) {
+  if (isObject(value)) {
+    return (value[SQL] || value[AGG])
+      ? parseExpression(value, ctx)
+      : parseTransform(value, ctx);
+  }
+}
 
 export function parseOptions(spec, ctx) {
   const options = {};
   for (const key in spec) {
-    options[key] = ctx.maybeSelection(spec[key]);
+    options[key] = maybeTransform(spec[key], ctx) || ctx.maybeSelection(spec[key]);
   }
   return new OptionsNode(options);
 }
