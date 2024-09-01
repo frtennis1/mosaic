@@ -1,4 +1,4 @@
-import { Menu, Search, Slider, Table } from '@uwdata/mosaic-inputs';
+import { Menu, Search, Slider, Table , TopNSelector } from '@uwdata/mosaic-inputs';
 import { connect } from './connect.js';
 
 function input(ctx, InputClass, options) {
@@ -21,4 +21,8 @@ export function slider(options) {
 
 export function table(options) {
   return input(this, Table, options);
+}
+
+export function topnselector(options) {
+  return input(this, TopNSelector, options);
 }

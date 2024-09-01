@@ -70,7 +70,8 @@ export {
   menu,
   search,
   slider,
-  table
+  table,
+  topnselector,
 } from './inputs.js';
 
 export {
