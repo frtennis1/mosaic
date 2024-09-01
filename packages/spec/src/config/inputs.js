@@ -8,6 +8,7 @@ export function inputNames(overrides = []) {
     'search',
     'slider',
     'table',
+    "topnselector",
     ...overrides
   ]);
 }
